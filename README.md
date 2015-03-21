@@ -1,9 +1,11 @@
 # L.TileLayer.Cordova
+
 Leaflet TileLayer subclass which caches to local filesystem, for Cordova/Phonegap
 
 Includes a test/demo application for Cordova/Phonegap, walking through the basics. See its own README file.
 
 #Usage
+
 See _test/www/_ for a functional application as well as JavaScript source code.
 
 A basic example as as follows:
@@ -54,6 +56,7 @@ A basic example as as follows:
 When running under Cordova/Phonegap this tile layer will behave much as usual, but has special behaviors such as the ability to cache sets of tiles, then to switch between "online mode" and "offline mode"
 
 #Constructor and Options
+
 In Leaflet tradition, there is a constructor for use with _new_ and also a utility function. They have an identical outcome:
     var layer = new L.TileLayer.Cordova(url,options)
     var layer = L.tileLayerCordova(url,options)
@@ -65,7 +68,17 @@ In addition, these config options are supported:
 * *debug* -- If true (defaults to false), extra console.log() calls are made to show progress and debugging.
 
 #Cache Folders and TileLayer Names
-GDA
+
+*Multiple L.TileLayer.Cordova instances may share the same folder.* Cache management such as emptyCache() and getDiskUsage() are keyed by the folder, so it's important to understand these interactions.
+
+The _folder_ indicates where L.TileLayer.Cordova will store its files, e.g. "My Trail Finder"
+The _name_ is used to cue the filename, e.g. terrain-12-34-56.png
+
+Multiple L.TileLayer.Cordova instances may share the same _folder_, albeit with different _name_ settings. In this scenario, calling getDiskUsage() on either layer would report a pooled usage... and calling emptyCache() on either layer would empty tiles for both layers. Thus, the specific wording in the documentation for those methods about _the cache folder_.
+
+This is for the best: a typical use case would have all of your tiles in one folder, and you would want to view _total_ usage and empty the _entire_ cache for your application -- preferably without writing callback-within-callback to iterate over every layer in your app.
+
+If you want your two layers to be separate, with separate usage counts and separate emptyCache() behaviors, then assign them to separate folders.
 
 #Methods - Toggling State
 *goOffline()*
@@ -94,6 +107,8 @@ Given a _latitude_ and _longitude_, calculate the tile which contains it. Then, 
 The return is a list of _xyz objects_ suitable for use with downloadXYZList()
 
 #Methods - Cache Management
+
+See also: Cache Folders and TileLayer Names
 
 *getDiskUsage(usage_callback)*
 Calculate the disk usage of all files in the layer's cache folder. The _usage_callback_ is passed two parameters: The count of files, and the count of bytes.
