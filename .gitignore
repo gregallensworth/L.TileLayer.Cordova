@@ -1,2 +1,4 @@
 test/platforms/android/ant.properties
 .DS_Store
+test/platforms/ios/www/index.*
+test/platforms/android/assets/www/index.*
