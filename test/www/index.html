@@ -12,7 +12,10 @@
     <script src="leaflet-tilelayer-cordova.js"></script>
     <script src="index.js"></script>
     <script>
-        document.addEventListener("deviceready", startCordovaTileTest, false);
+        document.addEventListener("deviceready", function () {
+            startMap();
+            startButtons();
+        }, false);
     </script>
     
     <style>
@@ -23,20 +26,38 @@
         html, body, #map {
             height: 100%;
         }
-        #status {
-            position:absolute; bottom:0; left:0;
-            z-index:100;
+    #status {
+        position:absolute; bottom:0; left:0;
+        z-index:100;
 
-            background-color:white;
-            border-top-right-radius:1em;
-            padding:1em;
-        }
+        background-color:white;
+        border-top-right-radius:1em;
+        padding:1em;
+    }
+    #buttons {
+        position:absolute; top:0; right:0;
+        z-index:100;
+
+        background-color:white;
+        border-top-right-radius:1em;
+        padding:1em;
+    }
     </style>
 </head>
 <body>
     <div id="map"></div>
 
     <div id="status"></div>
+
+    <div id="buttons">
+        <a href="#" id="test_cache">Cache current extent</a>
+        &nbsp;&bull;&nbsp;
+        <a href="#" id="test_offline">Switch to offline mode</a>
+        &nbsp;&bull;&nbsp;
+        <a href="#" id="test_online">Switch to online mode</a>
+        &nbsp;&bull;&nbsp;
+        <a href="#" id="test_cache">Show cache usage</a>
+    </div>
 </body>
 </html>
 
