@@ -38,7 +38,8 @@ function startButtons() {
     document.getElementById('test_cache').addEventListener('click', testCaching);
     document.getElementById('test_offline').addEventListener('click', testOffline);
     document.getElementById('test_online').addEventListener('click', testOnline);
-    document.getElementById('test_cache').addEventListener('click', testUsage);
+    document.getElementById('test_usage').addEventListener('click', testUsage);
+    document.getElementById('test_empty').addEventListener('click', testEmpty);
 }
 
 function testCaching() {
@@ -79,16 +80,22 @@ function testCaching() {
 }
 
 function testOffline() {
-
+    BASE.goOffline();
 }
 
 function testOnline() {
-
+    BASE.goOnline();
 }
 
 function testUsage() {
+    var status_block = document.getElementById('status');
     BASE.getDiskUsage(function (filecount,bytes) {
         var kilobytes = Math.round( bytes / 1024 );
-        status_block.innerHTML = "Done" + "<br/>" + filecount + " files" + "<br/>" + kilobytes + " kB";
+        status_block.innerHTML = "Cache status" + "<br/>" + filecount + " files" + "<br/>" + kilobytes + " kB";
     });
 }
+
+function testEmpty() {
+
+}
+
