@@ -71,8 +71,8 @@ In addition, these config options are supported:
 
 *Multiple L.TileLayer.Cordova instances may share the same folder.* Cache management such as emptyCache() and getDiskUsage() are keyed by the folder, so it's important to understand these interactions.
 
-The _folder_ indicates where L.TileLayer.Cordova will store its files, e.g. "My Trail Finder"
-The _name_ is used to cue the filename, e.g. terrain-12-34-56.png
+* The _folder_ indicates where L.TileLayer.Cordova will store its files, e.g. "My Trail Finder" becomes _/pathto/sdcard/My Trail Finder_
+* The _name_ is used to cue the filename, e.g. terrain-12-34-56.png
 
 Multiple L.TileLayer.Cordova instances may share the same _folder_, albeit with different _name_ settings. In this scenario, calling getDiskUsage() on either layer would report a pooled usage... and calling emptyCache() on either layer would empty tiles for both layers. Thus, the specific wording in the documentation for those methods about _the cache folder_.
 
