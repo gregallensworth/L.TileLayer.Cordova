@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>L.TileLayer.Cordova Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <script charset="utf-8" src="cordova.js"></script>
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet-src.js"></script>
+
+    <script src="leaflet-tilelayer-cordova.js"></script>
+    <script src="index.js"></script>
+    <script>
+        document.addEventListener("deviceready", startCordovaTileTest, false);
+    </script>
+    
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        html, body, #map {
+            height: 100%;
+        }
+        #status {
+            position:absolute; bottom:0; left:0;
+            z-index:100;
+
+            background-color:white;
+            border-top-right-radius:1em;
+            padding:1em;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <div id="status"></div>
+</body>
+</html>
+
