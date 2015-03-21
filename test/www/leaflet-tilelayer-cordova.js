@@ -15,6 +15,11 @@
  * name         REQUIRED. A unique name for this TileLayer, for naming the tiles and then fetching them later. Keep it brief, e.g. "terrain"
  * debug        Boolean indicating whether to display verbose debugging out to console. Defaults to false. Great for using GapDebug, logcat, Xcode console, ...
  */
+
+L.tileLayerCordova = function (url,options) {
+    return new L.TileLayer.Cordova(url,options);
+}
+
 L.TileLayer.Cordova = L.TileLayer.extend({
     initialize: function (url, options) {
         // check required options or else choke and die
@@ -245,6 +250,8 @@ L.TileLayer.Cordova = L.TileLayer.extend({
                         processFileEntry(index+1);
                     },
                     function () {
+                        // failed to get file info? impossible, but if it somehow happens just skip on to the next file
+                        processFileEntry(index+1);
                     }
                 );
             }
@@ -252,10 +259,37 @@ L.TileLayer.Cordova = L.TileLayer.extend({
         }, function () {
             throw "L.TileLayer.Cordova: getDiskUsage: Failed to read directory";
         });
+    },
+
+    emptyCache: function (callback) {
+        var myself = this;
+        var dirReader = myself.dirhandle.createReader();
+        dirReader.readEntries(function (entries) {
+            var success = 0;
+            var failed  = 0;
+
+            function processFileEntry(index) {
+                if (index >= entries.length) {
+                    if (callback) callback(success,failed);
+                    return;
+                }
+
+                // if (myself.options.debug) console.log( entries[index] );
+                entries[index].remove(
+                    function () {
+                        success++;
+                        processFileEntry(index+1);
+                    },
+                    function () {
+                        failed++;
+                        processFileEntry(index+1);
+                    }
+                );
+            }
+            processFileEntry(0);
+        }, function () {
+            throw "L.TileLayer.Cordova: emptyCache: Failed to read directory";
+        });
     }
 
-});
-
-L.tileLayerCordova = function (url,options) {
-    return new L.TileLayer.Cordova(url,options);
-}
+}); // end of L.TileLayer.Cordova class

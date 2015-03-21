@@ -96,6 +96,10 @@ function testUsage() {
 }
 
 function testEmpty() {
-
+    BASE.emptyCache(function (oks,fails) {
+        var message = "Cleared cache.\n" + oks + " deleted OK\n" + fails + " failed";
+        alert(message);
+        testUsage();
+    })
 }
 

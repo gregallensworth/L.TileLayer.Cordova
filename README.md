@@ -60,9 +60,12 @@ In Leaflet tradition, there is a constructor for use with _new_ and also a utili
 
 Most options are passed through to L.TileLayer and will be supported as is typical. This would include maxZoom, attributions, TMS, the {x}{y}{z}{s} markups in the IURL template, and so on.
 In addition, these config options are supported:
-* *folder* -- REQUIRED. A folder path under which tiles are stored. The name of your app may be good, e.g. "My Trail App"
-* *name* -- REQUIRED. A unique name for this TileLayer, for naming the tiles and then fetching them later. Keep it brief, e.g. "terrain"
+* *folder* -- REQUIRED. A folder path under which tiles are stored. The name of your app may be good, e.g. "My Trail App" See the _Cache Folders and TileLayer Names_ section for more information.
+* *name* -- REQUIRED. A unique name for this TileLayer, for naming the tiles and then fetching them later. Keep it brief, e.g. "terrain" See the _Cache Folders and TileLayer Names_ section for more information.
 * *debug* -- If true (defaults to false), extra console.log() calls are made to show progress and debugging.
+
+#Cache Folders and TileLayer Names
+GDA
 
 #Methods - Toggling State
 *goOffline()*
@@ -93,5 +96,9 @@ The return is a list of _xyz objects_ suitable for use with downloadXYZList()
 #Methods - Cache Management
 
 *getDiskUsage(usage_callback)*
-Calculate the disk usage of this L.TileLayer.Cordova instance. The _usage_callback_ is passed two parameters: The count of files, and the count of bytes.
+Calculate the disk usage of all files in the layer's cache folder. The _usage_callback_ is passed two parameters: The count of files, and the count of bytes.
+NOTE: This tallies up all tiles in the cache folder, not necessarily those belonging solely to this specific L.TileLayer.Cordova instance. See the section about Cache Folders and TileLayer Names.
 
+*emptyCache(done_callback)*
+Delete all of the files in the layer's cache folder. The _done_callback_ is called with two parameters: integer count of the number of files deleted, and integer count of the number of files where deletion failed.
+NOTE: This deletes all tiles in the cache folder, not necessarily those belonging solely to this specific L.TileLayer.Cordova instance. See the section about Cache Folders and TileLayer Names.
