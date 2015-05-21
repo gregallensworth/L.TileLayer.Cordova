@@ -3,7 +3,8 @@
 <head>
     <title>L.TileLayer.Cordova Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
+	<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' http://cdn.leafletjs.com; connect-src 'self'; img-src *; style-src 'self' 'unsafe-inline' http://cdn.leafletjs.com; frame-src 'self' gap:;">
+	
     <script charset="utf-8" src="cordova.js"></script>
 
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
@@ -50,7 +51,9 @@
     <div id="status"></div>
 
     <div id="buttons">
-        <a href="javascript:void(0);" id="test_cache">Cache current extent</a>
+        <a href="javascript:void(0);" id="test_cache_pyramid">Cache current extent (pyramid)</a>
+        &nbsp;&bull;&nbsp;
+        <a href="javascript:void(0);" id="test_cache_bounds">Cache current extent (bounds)</a>
         &nbsp;&bull;&nbsp;
         <a href="javascript:void(0);" id="test_offline">Switch to offline mode</a>
         &nbsp;&bull;&nbsp;
