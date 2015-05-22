@@ -35,19 +35,28 @@ function startMap() {
 }
 
 function startButtons() {
-    document.getElementById('test_cache').addEventListener('click', testCaching);
+    document.getElementById('test_cache_pyramid').addEventListener('click', testCachingPyramid);
+    document.getElementById('test_cache_bounds').addEventListener('click', testCachingBounds);
     document.getElementById('test_offline').addEventListener('click', testOffline);
     document.getElementById('test_online').addEventListener('click', testOnline);
     document.getElementById('test_usage').addEventListener('click', testUsage);
     document.getElementById('test_empty').addEventListener('click', testEmpty);
 }
 
-function testCaching() {
+function testCachingPyramid() {
+	testCaching('pyramid');
+}
+
+function testCachingBounds() {
+	testCaching('bounds');
+}
+
+function testCaching(which) {
     var lat       = MAP.getCenter().lat;
     var lng       = MAP.getCenter().lng;
     var zmin      = MAP.getZoom();
     var zmax      = CACHE_ZOOM_MAX;
-    var tile_list = BASE.calculateXYZListFromPyramid(lat, lng, zmin, zmax);
+    var tile_list = (which == 'pyramid' ? BASE.calculateXYZListFromPyramid(lat, lng, zmin, zmax) : BASE.calculateXYZListFromBounds(MAP.getBounds(), zmin, zmax));
     var message   = "Preparing to cache tiles.\n" + "Zoom level " + zmin + " through " + zmax + "\n" + tile_list.length + " tiles total." + "\nClick OK to proceed.";
     var ok        = confirm(message);
     if (! ok) return false;

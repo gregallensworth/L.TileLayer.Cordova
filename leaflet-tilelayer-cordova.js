@@ -107,8 +107,8 @@ L.TileLayer.Cordova = L.TileLayer.extend({
 
         var xyzlist = [];
         for (z=zmin; z<=zmax; z++) {
-            var t_x = Math.floor((lon+180)/360*Math.pow(2,z));
-            var t_y = Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,z));
+            var t_x = this.getX(lon, z);
+            var t_y = this.getY(lat, z);
 
             var radius = z==zmin ? 0 : Math.pow(2 , z - zmin - 1);
             if (this.options.debug) console.log("Calculate pyramid: Z " + z + " : " + "Radius of " + radius );
@@ -124,6 +124,43 @@ L.TileLayer.Cordova = L.TileLayer.extend({
         return xyzlist;
     },
 
+	calculateXYZListFromBounds: function(bounds, zmin, zmax) {
+		// Given a bounds (such as that obtained by calling MAP.getBounds()) and a range of zoom levels, returns the list of XYZ trios comprising that view.
+		// The caller may then call downloadXYZList() with progress and error callbacks to do the fetching.
+		
+		var xyzlist = [];
+		
+		for (z = zmin; z <= zmax; z++) {
+			
+			// Figure out the tile for the northwest point of the bounds.
+			t1_x = this.getX(bounds.getNorthWest().lng, z);
+			t1_y = this.getY(bounds.getNorthWest().lat, z);
+			
+			// Figure out the tile for the southeast point of the bounds.
+			t2_x = this.getX(bounds.getSouthEast().lng, z);
+			t2_y = this.getY(bounds.getSouthEast().lat, z);
+			
+			// Now that we have the coordinates of the two opposing points (in the correct order!), we can iterate over the square.
+			for (var x = t1_x; x <= t2_x; x++) {
+				for (var y = t1_y; y <= t2_y; y++) {
+					xyzlist.push({ x:x, y:y, z:z });
+				}
+			}
+				
+		}
+		
+		return xyzlist;
+		
+	},
+	
+	getX: function(lon, z) {
+		return Math.floor((lon+180)/360*Math.pow(2,z));
+	},
+	
+	getY: function(lat, z) {
+		return Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,z));
+	},
+	
     downloadAndStoreTile: function (x,y,z,success_callback,error_callback) {
         var myself    = this;
         var filename  = myself.dirhandle.toURL() + '/' + [ myself.options.name, z, x, y ].join('-') + '.png';
