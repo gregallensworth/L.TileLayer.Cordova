@@ -23,15 +23,21 @@ function startMap() {
             folder: 'LTileLayerCordovaExample',
             name:   'example',
             debug:   true
-        }).addTo(MAP);
+        }, function() {
+			updateStatus();
+		}).addTo(MAP);
     } catch (e) {
         alert(e);
     }
 
     MAP.setView([LAT,LNG],ZOOM);
     MAP.on('moveend', function () {
-        document.getElementById('status').innerHTML =  MAP.getCenter().lat.toFixed(5) + ' x ' + MAP.getCenter().lng.toFixed(5) + ' @ ' + MAP.getZoom();
+		updateStatus();
     }).fire('moveend');
+}
+
+function updateStatus() {
+	document.getElementById('status').innerHTML =  MAP.getCenter().lat.toFixed(5) + ' x ' + MAP.getCenter().lng.toFixed(5) + ' @ ' + MAP.getZoom() + (BASE.isOnline() ? ' (ONLINE)' : BASE.isOffline() ? ' (OFFLINE)' : '');
 }
 
 function startButtons() {
@@ -40,6 +46,7 @@ function startButtons() {
     document.getElementById('test_offline').addEventListener('click', testOffline);
     document.getElementById('test_online').addEventListener('click', testOnline);
     document.getElementById('test_usage').addEventListener('click', testUsage);
+    document.getElementById('test_browse_cache').addEventListener('click', testBrowseCache);
     document.getElementById('test_empty').addEventListener('click', testEmpty);
 }
 
@@ -90,10 +97,12 @@ function testCaching(which) {
 
 function testOffline() {
     BASE.goOffline();
+	updateStatus();
 }
 
 function testOnline() {
     BASE.goOnline();
+	updateStatus();
 }
 
 function testUsage() {
@@ -102,6 +111,13 @@ function testUsage() {
         var kilobytes = Math.round( bytes / 1024 );
         status_block.innerHTML = "Cache status" + "<br/>" + filecount + " files" + "<br/>" + kilobytes + " kB";
     });
+}
+
+function testBrowseCache() {
+	BASE.getCacheContents(function(cache) {
+		console.log(cache);
+		alert("Look in console for cache contents");
+	});
 }
 
 function testEmpty() {
