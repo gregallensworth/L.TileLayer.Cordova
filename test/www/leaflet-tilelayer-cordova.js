@@ -14,14 +14,16 @@
  * folder       REQUIRED. A folder path under which tiles are stored. The name of your app may be good, e.g. "My Trail App"
  * name         REQUIRED. A unique name for this TileLayer, for naming the tiles and then fetching them later. Keep it brief, e.g. "terrain"
  * debug        Boolean indicating whether to display verbose debugging out to console. Defaults to false. Great for using GapDebug, logcat, Xcode console, ...
+ *
+ * Accepts an optional success_callback, which will be called when the time-intensive filesystem activities are complete.
  */
 
-L.tileLayerCordova = function (url,options) {
-    return new L.TileLayer.Cordova(url,options);
+L.tileLayerCordova = function (url,options,success_callback) {
+    return new L.TileLayer.Cordova(url,options,success_callback);
 }
 
 L.TileLayer.Cordova = L.TileLayer.extend({
-    initialize: function (url, options) {
+    initialize: function (url, options, success_callback) {
         // check required options or else choke and die
         options = L.extend({
             folder: null,
@@ -44,6 +46,7 @@ L.TileLayer.Cordova = L.TileLayer.extend({
         // offline is underneath the local filesystem: /path/to/sdcard/FOLDER/name-z-x-y.png
         // tip: the file extension isn't really relevant; using .png works fine without juggling file extensions from their URL templates
         var myself = this;
+		myself._url_online  = myself._url; // Do this early, so it's done before the time-intensive filesystem activity starts.
         if (! window.requestFileSystem && this.options.debug) console.log("L.TileLayer.Cordova: device does not support requestFileSystem");
         if (! window.requestFileSystem) throw "L.TileLayer.Cordova: device does not support requestFileSystem";
         if (myself.options.debug) console.log("Opening filesystem");
@@ -62,8 +65,9 @@ L.TileLayer.Cordova = L.TileLayer.extend({
                         myself.dirhandle.setMetadata(null, null, { "com.apple.MobileBackup":1});
 
                         // Android's toURL() has a trailing / but iOS does not; better to have 2 than to have 0 !
-                        myself._url_online  = myself._url;
                         myself._url_offline = dirhandle.toURL() + '/' + [ myself.options.name,'{z}','{x}','{y}' ].join('-') + '.png';
+						
+						if (success_callback) success_callback();
                     },
                     function (error) {
                         if (myself.options.debug) console.log("getDirectory failed (code " + error.code + ")" + options.folder);
@@ -94,7 +98,18 @@ L.TileLayer.Cordova = L.TileLayer.extend({
         // use this layer in online mode
         this.setUrl( this._url_offline );
     },
-
+	
+	/*
+	 * Returns current online/offline state.
+	 */
+	 
+	isOnline: function() {
+		return (this._url == this._url_online);
+	},
+	isOffline: function() {
+		return (this._url == this._url_offline);
+	},
+	
     /*
      * A set of functions to do the tile downloads, and to provide suporting calculations related thereto
      * In particular, a user interface for downloading tiles en masse, would call calculateXYZListFromPyramid() to egt a list of tiles,
@@ -161,6 +176,15 @@ L.TileLayer.Cordova = L.TileLayer.extend({
 		return Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,z));
 	},
 	
+    getLng: function(x, z) {
+        return (x/Math.pow(2,z)*360-180);
+    },
+
+    getLat: function(y, z) {
+        var n=Math.PI-2*Math.PI*y/Math.pow(2,z);
+        return (180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))));
+    },
+
     downloadAndStoreTile: function (x,y,z,success_callback,error_callback) {
         var myself    = this;
         var filename  = myself.dirhandle.toURL() + '/' + [ myself.options.name, z, x, y ].join('-') + '.png';
@@ -327,6 +351,46 @@ L.TileLayer.Cordova = L.TileLayer.extend({
         }, function () {
             throw "L.TileLayer.Cordova: emptyCache: Failed to read directory";
         });
-    }
+    },
 
+    getCacheContents: function(done_callback) {
+        var myself = this;
+        var dirReader = myself.dirhandle.createReader();
+        dirReader.readEntries(function (entries) {
+
+            var retval = [];
+            for (var i = 0; i < entries.length; i++) {
+                var e = entries[i];
+                if (e.isFile) {
+
+                    var myEntry = {
+                        name: e.name,
+                        fullPath: e.fullPath,
+                        nativeURL: e.nativeURL
+                    };
+
+                    // Extract the x,y,z pieces from the filename.
+                    var parts_outer = e.name.split(".");
+                    if (parts_outer.length >= 1) {
+                        var parts = parts_outer[0].split('-');
+                        if (parts.length >= 4) {
+                            myEntry['z'] = parts[1];
+                            myEntry['x'] = parts[2];
+                            myEntry['y'] = parts[3];
+                            myEntry['lat'] = myself.getLat(myEntry.y, myEntry.z);
+                            myEntry['lng'] = myself.getLng(myEntry.x, myEntry.z);
+                        }
+                    }
+
+                    retval.push(myEntry);
+                }
+            }
+
+            if (done_callback) done_callback(retval);
+
+        }, function() {
+            throw "L.TileLayer.Cordova: getCacheContents: Failed to read directory";
+        });
+    }
+	
 }); // end of L.TileLayer.Cordova class
