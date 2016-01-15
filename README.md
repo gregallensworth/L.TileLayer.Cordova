@@ -10,12 +10,10 @@ See _test/www/_ for a functional application as well as JavaScript source code.
 
 A basic example as as follows:
 
-    BASE = L.tileLayerCordova('https://{s}.tiles.mapbox.com/v3/examples.map-i875mjb7/{z}/{x}/{y}.png', {
+    BASE = L.tileLayerCordova(''http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         // these options are perfectly ordinary L.TileLayer options
         maxZoom: 18,
-        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-                     '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-                     'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright/">OpenStreetMap contributors</a>',
         // these are specific to L.TileLayer.Cordova and mostly specify where to store the tiles on disk
         folder: 'LTileLayerCordovaExample',
         name:   'example',
