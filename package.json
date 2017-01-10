@@ -9,7 +9,8 @@
   "jspm": {
     "directories": {
       "lib": "src"
-    }
+    },
+    "main": "leaflet-tilelayer-cordova"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
