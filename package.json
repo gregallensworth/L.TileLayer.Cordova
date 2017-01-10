@@ -1,0 +1,27 @@
+{
+  "name": "leaflet-tilelayer-cordova",
+  "version": "1.2.0",
+  "description": "Leaflet TileLayer subclass which caches to local filesystem, for Cordova/Phonegap",
+  "main": "src/leaflet-tilelayer-cordova.js",
+  "directories": {
+    "test": "test"
+  },
+  "jspm": {
+    "directories": {
+      "lib": "src"
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gregallensworth/L.TileLayer.Cordova.git"
+  },
+  "author": "gregallensworth",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gregallensworth/L.TileLayer.Cordova/issues"
+  },
+  "homepage": "https://github.com/gregallensworth/L.TileLayer.Cordova#readme"
+}
