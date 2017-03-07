@@ -209,14 +209,10 @@ L.TileLayer.Cordova = L.TileLayer.extend({
                 var errmsg;
                 switch (error.code) {
                     case FileTransferError.FILE_NOT_FOUND_ERR:
-                        errmsg = "One of these was not found:\n";
-                        errmsg += urls[index].url + "\n";
-                        errmsg += urls[index].filename;
+                        errmsg = "File not found:\n" + sourceurl;
                         break;
                     case FileTransferError.INVALID_URL_ERR:
-                        errmsg = "Invalid URL:\n";
-                        errmsg += urls[index].url + "\n";
-                        errmsg += urls[index].filename;
+                        errmsg = "Invalid URL:\n" + sourceurl;
                         break;
                     case FileTransferError.CONNECTION_ERR:
                         errmsg = "Connection error at the web server.\n";
