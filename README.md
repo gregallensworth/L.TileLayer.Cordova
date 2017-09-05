@@ -32,6 +32,9 @@ A basic example as as follows:
         // 3rd param: progress callback
         // receives the number of tiles downloaded and the number of tiles total
         // caller can calculate a percentage, update progress bar, etc.
+        // Cancel: if the progress callback returns false (not null or undefined, but false)
+        // then BASE.downloadXYZList() interprets that as a cancel order and will cease downloading tiles
+        // great for a cancel button!
         function (done,total) {
             var percent = Math.round(100 * done / total);
             status_block.innerHTML = done  + " / " + total + " = " + percent + "%";
@@ -110,7 +113,7 @@ The _error_callback_ will be called if it failed. This callback is passed one pa
 - `downloadXYZList(xyzlist,overwrite,progress_callback,complete_callback,error_callback)`
 Given a list of _xyz objects_ representing tile ordinates, download all of these tiles and save them to the on-device cache.
 The _overwrite_ flag specifies whether tiles already in the on-device cache will be skipped and retained or else downloaded and overwritten. Setting overwrite to false can be a big time-saver, if someone has already cached an overlapping area.
-The _progress_callback_ is called as each tile is downloaded and saved. The callback is passed two parameters: the number of tiles now comlpeted (integer) and the number of tiles to be downloaded (integer). This is suitable for displaying a progress bar, for example.
+The _progress_callback_ is called as each tile is downloaded and saved. The callback is passed two parameters: the number of tiles now comlpeted (integer) and the number of tiles to be downloaded (integer). This is suitable for displaying a progress bar, for example. This callback may return `false` in which case downloadXYZList() will stop fetching tiles after that progress callback; this is useful for implementing a cancel functionality.
 The _complete_callback_ is called when all tiles have been downloaded and saved. It is passed no parameters. This would be suitable for supressing a progress message, or displaying a Done! message, for example.
 The _error_callback_ is called in the event of an error. It is passed one parameter: an error message string.
 
