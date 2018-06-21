@@ -173,12 +173,12 @@ L.TileLayer.Cordova = L.TileLayer.extend({
 	},
 	
 	getY: function(lat, z) {
-        var y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, z));
+		var y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, z));
 
-        // issue 25: Y calculation for TMS
-        if (this.options.tms) {
-            y = Math.pow(2, z) - y - 1;
-        }
+		// issue 25: Y calculation for TMS
+		if (this.options.tms) {
+			y = Math.pow(2, z) - y - 1;
+		}
 
 		return y;
 	},
