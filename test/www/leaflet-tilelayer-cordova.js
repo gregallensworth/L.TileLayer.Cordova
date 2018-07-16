@@ -116,7 +116,7 @@ L.TileLayer.Cordova = L.TileLayer.extend({
      * then make decisions about whether this is a good idea (e.g. too many tiles), then call downloadXYZList() with success/error callbacks
      */
 
-    calculateXYZListFromPyramid: function (lat,lon,zmin,zmax) {
+    calculateXYZListFromPyramid: function (lat, lon, zmin, zmax) {
         // given a latitude and longitude, and a range of zoom levels, return the list of XYZ trios comprising that view
         // the caller may then call downloadXYZList() with progress and error callbacks to do that fetching
 
@@ -173,7 +173,14 @@ L.TileLayer.Cordova = L.TileLayer.extend({
 	},
 	
 	getY: function(lat, z) {
-		return Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,z));
+		var y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, z));
+
+		// issue 25: Y calculation for TMS
+		if (this.options.tms) {
+			y = Math.pow(2, z) - y - 1;
+		}
+
+		return y;
 	},
 	
     getLng: function(x, z) {
@@ -235,7 +242,13 @@ L.TileLayer.Cordova = L.TileLayer.extend({
             // all we need to do is call it below, depending on the overwrite outcome
             function doneWithIt() {
                 // the download was skipped and not an error, so call the progress callback; then either move on to the next one, or else call our success callback
-                if (cbprog) cbprog(index,xyzs.length);
+                // if the progress callback returns false (not null, not undefiend... false) then do not proceed to the next tile; this allows cancellation from the caller code
+                if (cbprog) {
+                    var keepgoing = cbprog(index,xyzs.length);
+                    if (keepgoing === false) {
+                        return;
+                    }
+                }
 
                 if (index+1 < xyzs.length) {
                     runThisOneByIndex(xyzs,index+1,cbprog,cbdone,cberr);
@@ -288,6 +301,8 @@ L.TileLayer.Cordova = L.TileLayer.extend({
     getDiskUsage: function (callback) {
         var myself    = this;
         var dirReader = myself.dirhandle.createReader();
+
+        var name_match = new RegExp('^' + myself.options.name + '-');
         dirReader.readEntries(function (entries) {
             // a mix of files & directories. In our case we know it's all files and all cached tiles, so just add up the filesize
             var files = 0;
@@ -299,18 +314,25 @@ L.TileLayer.Cordova = L.TileLayer.extend({
                     return;
                 }
 
-                // if (myself.options.debug) console.log( entries[index] );
-                entries[index].file(
-                    function (fileinfo) {
-                        bytes += fileinfo.size;
-                        files++;
-                        processFileEntry(index+1);
-                    },
-                    function () {
-                        // failed to get file info? impossible, but if it somehow happens just skip on to the next file
-                        processFileEntry(index+1);
-                    }
-                );
+                // workaround for smoeone storing multiple layers in one folder, or other files in this folder
+                // if this file doesn't start with our own name, it's not for this tile layer
+                if (entries[index].isFile && name_match.exec(entries[index].name)) {
+                    entries[index].file(
+                        function (fileinfo) {
+                            bytes += fileinfo.size;
+                            files++;
+                            processFileEntry(index+1);
+                        },
+                        function () {
+                            // failed to get file info? impossible, but if it somehow happens just skip on to the next file
+                            processFileEntry(index+1);
+                        }
+                    );
+                }
+                else {
+                    // skip it; next!
+                    processFileEntry(index+1);
+                }
             }
             processFileEntry(0);
         }, function () {
@@ -321,6 +343,7 @@ L.TileLayer.Cordova = L.TileLayer.extend({
     emptyCache: function (callback) {
         var myself = this;
         var dirReader = myself.dirhandle.createReader();
+        var name_match = new RegExp('^' + myself.options.name + '-');
         dirReader.readEntries(function (entries) {
             var success = 0;
             var failed  = 0;
@@ -331,17 +354,23 @@ L.TileLayer.Cordova = L.TileLayer.extend({
                     return;
                 }
 
-                // if (myself.options.debug) console.log( entries[index] );
-                entries[index].remove(
-                    function () {
-                        success++;
-                        processFileEntry(index+1);
-                    },
-                    function () {
-                        failed++;
-                        processFileEntry(index+1);
-                    }
-                );
+                // if this file doesn't start with our own name, it's not for this tile layer
+                if (entries[index].isFile && name_match.exec(entries[index].name)) {
+                    entries[index].remove(
+                        function () {
+                            success++;
+                            processFileEntry(index+1);
+                        },
+                        function () {
+                            failed++;
+                            processFileEntry(index+1);
+                        }
+                    );
+                }
+                else {
+                    // skip it; next!
+                    processFileEntry(index+1);
+                }
             }
             processFileEntry(0);
         }, function () {
@@ -390,3 +419,4 @@ L.TileLayer.Cordova = L.TileLayer.extend({
     }
 	
 }); // end of L.TileLayer.Cordova class
+

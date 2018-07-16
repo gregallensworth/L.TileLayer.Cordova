@@ -116,7 +116,7 @@ L.TileLayer.Cordova = L.TileLayer.extend({
      * then make decisions about whether this is a good idea (e.g. too many tiles), then call downloadXYZList() with success/error callbacks
      */
 
-    calculateXYZListFromPyramid: function (lat,lon,zmin,zmax) {
+    calculateXYZListFromPyramid: function (lat, lon, zmin, zmax) {
         // given a latitude and longitude, and a range of zoom levels, return the list of XYZ trios comprising that view
         // the caller may then call downloadXYZList() with progress and error callbacks to do that fetching
 
@@ -173,7 +173,14 @@ L.TileLayer.Cordova = L.TileLayer.extend({
 	},
 	
 	getY: function(lat, z) {
-		return Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,z));
+		var y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, z));
+
+		// issue 25: Y calculation for TMS
+		if (this.options.tms) {
+			y = Math.pow(2, z) - y - 1;
+		}
+
+		return y;
 	},
 	
     getLng: function(x, z) {
