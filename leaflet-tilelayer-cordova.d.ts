@@ -22,7 +22,7 @@ declare module 'leaflet' {
         initialize(url: string, options: TileLayerCordovaOptions, success_callback: Function): TileLayerCordova
         
         goOnline(): void;
-        goOnline(): void;
+        goOffline(): void;
         
         isOnline(): boolean;
         isOffline(): boolean;
